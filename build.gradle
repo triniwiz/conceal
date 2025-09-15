@@ -71,7 +71,7 @@ if (!project.hasProperty('sonatypeRepo') ||
 
 // Maven Push
 
-//apply plugin: 'maven'
+apply plugin: 'maven'
 //apply plugin: 'signing'
 
 version = "2.0.2"
