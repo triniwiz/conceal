@@ -1,78 +1,83 @@
 buildscript {
     repositories {
         mavenCentral()
+        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:8.7.0'
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
+    namespace "com.facebook.crypto"
     repositories {
-      mavenCentral()
+        mavenCentral()
+        google()
     }
 
     dependencies {
-        compile 'com.google.code.findbugs:jsr305:3.0.2'
+        implementation 'com.github.spotbugs:spotbugs-annotations:4.9.4'
     }
 
-    compileSdkVersion 23
-    buildToolsVersion "25.0.0"
+    compileSdkVersion 35
+    buildToolsVersion "35.0.0"
 
     defaultConfig {
-      minSdkVersion 9
-      targetSdkVersion 17
+        minSdkVersion 21
+        targetSdkVersion 35
     }
 
     sourceSets {
 
-      main {
-        manifest.srcFile 'AndroidManifest.xml'
-        java.srcDirs = [
-            'first-party/fbjni/java',
-            'first-party/proguard/annotations',
-            'first-party/soloader',
-            'java']
-        jniLibs.srcDir 'libs'
-        jni.srcDirs = []
-      }
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = [
+                    'first-party/fbjni/java',
+                    'first-party/proguard/annotations',
+                    'first-party/soloader',
+                    'java']
+            jniLibs.srcDir 'libs'
+            jni.srcDirs = []
+        }
     }
 
-    task ndkBuildRelease(type: Exec) {
-      commandLine "$System.env.ANDROID_NDK/ndk-build",
-        '-C', file('.').absolutePath,
-       'NDK_APPLICATION_MK=${PWD}/native/Application.mk',
-       'NDK_MODULE_PATH=${PWD}/native:${PWD}/first-party/fbjni/native:${PWD}/third-party',
-       'APP_BUILD_SCRIPT=${PWD}/native/jni/Android.mk'
+    tasks.register('ndkBuildRelease', Exec) {
+        commandLine "$System.env.ANDROID_NDK/ndk-build",
+                '-C', file('.').absolutePath,
+                'NDK_APPLICATION_MK=${PWD}/native/Application.mk',
+                'NDK_MODULE_PATH=${PWD}/native:${PWD}/first-party/fbjni/native:${PWD}/third-party',
+                'APP_BUILD_SCRIPT=${PWD}/native/jni/Android.mk',
+                'ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
     }
 
-    tasks.withType(JavaCompile) {
-      compileTask -> compileTask.dependsOn ndkBuildRelease
+    tasks.withType(JavaCompile).configureEach {
+        compileTask -> compileTask.dependsOn ndkBuildRelease
     }
 
     lintOptions {
-      abortOnError false
+        abortOnError false
     }
 }
 
 // Configure gradle.properties to do maven builds
 if (!project.hasProperty('sonatypeRepo') ||
-    !project.hasProperty('sonatypeUsername') ||
-    !project.hasProperty('sonatypePassword')) {
-  return;
+        !project.hasProperty('sonatypeUsername') ||
+        !project.hasProperty('sonatypePassword')) {
+    return;
 }
 
 // Maven Push
 
-apply plugin: 'maven'
-apply plugin: 'signing'
+//apply plugin: 'maven'
+//apply plugin: 'signing'
 
 version = "2.0.2"
 group = "com.facebook.conceal"
 
+/*
 signing {
     required { gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
@@ -117,3 +122,5 @@ uploadArchives {
         }
     }
 }
+
+*/

@@ -163,7 +163,7 @@ inline local_ref<JClass> JClass::getSuperclass() const noexcept {
 inline void JClass::registerNatives(std::initializer_list<NativeMethod> methods) {
   const auto env = internal::getEnv();
 
-  JNINativeMethod jnimethods[methods.size()];
+  std::vector<JNINativeMethod> jnimethods(methods.size());
   size_t i = 0;
   for (auto it = methods.begin(); it < methods.end(); ++it, ++i) {
     jnimethods[i].name = it->name;
@@ -171,7 +171,7 @@ inline void JClass::registerNatives(std::initializer_list<NativeMethod> methods)
     jnimethods[i].fnPtr = reinterpret_cast<void*>(it->wrapper);
   }
 
-  auto result = env->RegisterNatives(self(), jnimethods, methods.size());
+  auto result = env->RegisterNatives(self(), jnimethods.data(), methods.size());
   FACEBOOK_JNI_THROW_EXCEPTION_IF(result != JNI_OK);
 }
 
