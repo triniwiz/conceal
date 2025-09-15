@@ -71,11 +71,27 @@ if (!project.hasProperty('sonatypeRepo') ||
 
 // Maven Push
 
-apply plugin: 'maven'
+//apply plugin: 'maven'
+apply plugin: 'maven-publish'
 //apply plugin: 'signing'
 
 version = "2.0.2"
 group = "com.facebook.conceal"
+
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'io.github.triniwiz.conceal'
+            artifactId = 'conceal'
+            version = '1.0'
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+}
 
 /*
 signing {
