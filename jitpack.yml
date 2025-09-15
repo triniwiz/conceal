@@ -1,2 +1,4 @@
+before_install:
+  - export ANDROID_NDK=$ANDROID_HOME/ndk/28.2.13676358
 jdk:
   - openjdk17
