@@ -30,6 +30,13 @@ android {
         targetSdkVersion 35
     }
 
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
     sourceSets {
 
         main {
@@ -63,11 +70,11 @@ android {
 }
 
 // Configure gradle.properties to do maven builds
-if (!project.hasProperty('sonatypeRepo') ||
-        !project.hasProperty('sonatypeUsername') ||
-        !project.hasProperty('sonatypePassword')) {
-    return;
-}
+//if (!project.hasProperty('sonatypeRepo') ||
+//        !project.hasProperty('sonatypeUsername') ||
+//        !project.hasProperty('sonatypePassword')) {
+//    return
+//}
 
 // Maven Push
 
@@ -78,15 +85,20 @@ apply plugin: 'maven-publish'
 version = "2.0.2"
 group = "com.facebook.conceal"
 
-
 publishing {
     publications {
         release(MavenPublication) {
             groupId = 'io.github.triniwiz.conceal'
             artifactId = 'conceal'
-            version = '1.0'
+            version = '2.0.3'
+        }
+    }
+}
 
-            afterEvaluate {
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
                 from components.release
             }
         }
