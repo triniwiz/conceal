@@ -53,7 +53,7 @@ android {
     }
 
     tasks.register('ndkBuildRelease', Exec) {
-        commandLine "$System.env.ANDROID_NDK/ndk-build",
+        commandLine "${System.env.NDK_HOME ?: System.env.ANDROID_NDK}/ndk-build",
                 '-C', file('.').absolutePath,
                 'NDK_APPLICATION_MK=${PWD}/native/Application.mk',
                 'NDK_MODULE_PATH=${PWD}/native:${PWD}/first-party/fbjni/native:${PWD}/third-party',
