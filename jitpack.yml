@@ -1,6 +1,2 @@
 jdk:
   - openjdk17
-install:
-  - yes | sdkmanager "ndk;28.2.13676358"
-before_build:
-  - export ANDROID_NDK=$ANDROID_HOME/ndk/28.2.13676358
