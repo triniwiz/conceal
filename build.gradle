@@ -13,6 +13,7 @@ apply plugin: 'com.android.library'
 
 android {
     namespace "com.facebook.crypto"
+    ndkVersion "28.2.13676358"
     repositories {
         mavenCentral()
         google()
