@@ -1,58 +1,111 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+
 buildscript {
     repositories {
         mavenCentral()
+        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0+'
+        classpath 'com.android.tools.build:gradle:8.7.0'
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 34
+    buildToolsVersion "34.0.0"
+    namespace "com.facebook.crypto"
+    ndkVersion "28.2.13676358"
 
     defaultConfig {
-      minSdkVersion 9
-      targetSdkVersion 17
+        minSdkVersion 21
+        targetSdkVersion 34
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 
     sourceSets {
-      main {
-        manifest.srcFile 'AndroidManifest.xml'
-        java.srcDirs = ['java']
-        jniLibs.srcDir 'libs'
-        jni.srcDirs = []
-      }
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['java']
+            jniLibs.srcDir 'libs'
+            jni.srcDirs = []
+        }
     }
 
     task ndkBuildRelease(type: Exec) {
-      commandLine 'ndk-build', '-C', file('native/crypto/').absolutePath,
-       'NDK_APPLICATION_MK=${PWD}/native/Application.mk',
-       'NDK_MODULE_PATH=${PWD}/native/third-party/',
-       'APP_BUILD_SCRIPT=${PWD}/native/crypto/Android.mk'
+        def ndkDir = System.env.NDK_HOME ?: System.env.ANDROID_NDK ?: android.ndkDirectory?.absolutePath
+        if (ndkDir == null) {
+            throw new GradleException("NDK not found. Set NDK_HOME, ANDROID_NDK, or ndkVersion in build.gradle")
+        }
+
+        workingDir projectDir
+        commandLine "${ndkDir}/ndk-build", '-C', file('native/crypto/').absolutePath,
+                'NDK_APPLICATION_MK=${PWD}/native/Application.mk',
+                'NDK_MODULE_PATH=${PWD}/native/third-party/',
+                'APP_BUILD_SCRIPT=${PWD}/native/crypto/Android.mk',
+                'ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
     }
 
     tasks.withType(JavaCompile) {
-      compileTask -> compileTask.dependsOn ndkBuildRelease
+        compileTask -> compileTask.dependsOn ndkBuildRelease
     }
 
     lintOptions {
-      abortOnError false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
-// Configure gradle.properties to do maven builds
-if (!project.hasProperty('sonatypeRepo') ||
-    !project.hasProperty('sonatypeUsername') ||
-    !project.hasProperty('sonatypePassword')) {
-  return;
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'io.github.triniwiz.conceal'
+            artifactId = 'conceal'
+            version = '1.1.4'
+        }
+    }
 }
 
-// Maven Push
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+            }
+        }
+    }
+}
 
+//// Configure gradle.properties to do maven builds
+//if (!project.hasProperty('sonatypeRepo') ||
+//    !project.hasProperty('sonatypeUsername') ||
+//    !project.hasProperty('sonatypePassword')) {
+//  return;
+//}
+
+/*
+// Maven Push
 apply plugin: 'maven'
 apply plugin: 'signing'
 
@@ -109,3 +162,5 @@ uploadArchives {
         }
     }
 }
+
+*/

@@ -10,6 +10,7 @@
 #include <jni.h>
 #include <hmac_util.h>
 #include <util.h>
+#include <string.h>
 
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
